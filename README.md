@@ -11,10 +11,10 @@ Split panes horizontally/vertically, color-code each pane, rename titles, and **
 
 - Split **Horizontal** / **Vertical**
 - Per-pane **title** (double-click to rename)
-- Per-pane **color** (picker)
-- **Save layout** to JSON
-- **Load layout** from JSON
+- Per-pane **color** (picker) — remembered on save
+- **Save layout** to JSON / **Load layout** from JSON
 - Remembers **working directory** per terminal (VTE OSC 7)
+- **Copy/Paste**: **Ctrl+Shift+C** / **Ctrl+Shift+V**
 - Context menu (right-click)
 - Menu shortcuts:
   - **Ctrl+S** – Save Layout
@@ -33,12 +33,12 @@ source "$HOME/.cargo/env"
 
 ### System packages
 
-**Fedora:**
+**Fedora**
 ```bash
 sudo dnf install -y gtk4-devel vte291-devel glib2-devel pkgconf-pkg-config ImageMagick vte-profile
 ```
 
-**Ubuntu/Debian:**
+**Ubuntu/Debian**
 ```bash
 sudo apt update
 sudo apt install -y libgtk-4-dev libvte-2.91-dev libglib2.0-dev pkg-config build-essential imagemagick
@@ -52,13 +52,13 @@ sudo apt install -y libgtk-4-dev libvte-2.91-dev libglib2.0-dev pkg-config build
 
 ```bash
 # Clone
-git clone https://github.com/yourname/spliterma.git
+git clone https://github.com/ymoraviadev-droid/spliterma.git
 cd spliterma
 
-# Debug
+# Debug build
 cargo run
 
-# Release
+# Release build
 cargo build --release
 ./target/release/spliterma
 ```
@@ -74,6 +74,7 @@ cargo build --release
   - Stop Terminal
 - **Double-click** the title to rename.
 - **Click** the color dot to change pane color.
+- **Ctrl+Shift+C** to copy selection, **Ctrl+Shift+V** to paste.
 - **Ctrl+S** / **Ctrl+O** via the app menu.
 
 ---
@@ -112,49 +113,17 @@ cargo build --release
 
 ## App Icon (transparent PNG)
 
-1) Put a **transparent** PNG named `spliterma.png` in the **project root**.  
-2) Generate & install icon sizes for app ID **`com.spliterma.app`**:
+You already have a helper script in the repo.
 
 ```bash
-cat > make_app_icon.sh <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-
-APP_ID="com.spliterma.app"
-SRC="./spliterma.png"             # transparent PNG in project root
-OUT="/tmp/spliterma-icons"
-SIZES=(16 32 48 64 128 256)
-
-command -v magick >/dev/null || { echo "ImageMagick (magick) not found"; exit 1; }
-[ -f "$SRC" ] || { echo "Source PNG not found at: $SRC"; exit 1; }
-
-rm -rf "$OUT"; mkdir -p "$OUT"
-for s in "${SIZES[@]}"; do
-  magick "$SRC" -resize "${s}x${s}" -background none -gravity center -extent "${s}x${s}" "$OUT/${s}.png"
-done
-cp "$OUT/256.png" "$OUT/${APP_ID}.png"
-
-for s in "${SIZES[@]}"; do
-  mkdir -p "$HOME/.local/share/icons/hicolor/${s}x${s}/apps"
-  cp "$OUT/${s}.png" "$HOME/.local/share/icons/hicolor/${s}x${s}/apps/${APP_ID}.png"
-done
-
-gtk-update-icon-cache "$HOME/.local/share/icons/hicolor" -f || true
-gtk4-update-icon-cache "$HOME/.local/share/icons/hicolor" -f || true
-
-echo "Installed icons for ${APP_ID}:"
-ls -l "$HOME/.local/share/icons/hicolor/"*"/apps/${APP_ID}.png" 2>/dev/null || true
-EOF
-
-chmod +x make_app_icon.sh
-bash make_app_icon.sh
+# Put a transparent PNG at project root called: spliterma.png
+# Then generate and install sizes locally:
+./make_app_icon.sh
 ```
 
-3) (Optional) Desktop launcher:
-
-Create `~/.local/share/applications/com.spliterma.app.desktop`:
-
-```
+(Optional) Desktop launcher for local builds:
+```ini
+# ~/.local/share/applications/com.spliterma.app.desktop
 [Desktop Entry]
 Name=Spliterma
 Exec=/full/path/to/your/binary
@@ -165,21 +134,16 @@ Categories=Utility;Development;
 StartupWMClass=com.spliterma.app
 ```
 
-Update the desktop DB (optional):
-```bash
-update-desktop-database ~/.local/share/applications || true
+> Ensure your code uses this app id:
+```rust
+let app = gtk::Application::builder()
+    .application_id("com.spliterma.app")
+    .build();
 ```
-
-> Ensure your code uses:
-> ```rust
-> let app = gtk::Application::builder()
->     .application_id("com.spliterma.app")
->     .build();
-> ```
 
 ---
 
-## 🗂️ Project layout (simplified)
+## Project layout (simplified)
 
 ```
 src/
@@ -216,10 +180,7 @@ MIT
 
 ---
 
-## Contribute
+## Author
 
-PRs welcome:
-- Bug fixes (layout edge cases)
-- Improved icon / theming
-- Config & settings
-- Packaging (Flatpak, RPM/DEB)
+**Yehonatan Moravia**  
+<yehonatan.dev@gmail.com>
