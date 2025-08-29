@@ -1,10 +1,11 @@
 use crate::constants::TERMINAL_COLORS;
 use crate::layout::persist::{load_layout, save_layout};
 use crate::ui::split::{split_terminal, stop_terminal};
-use gtk::{gio, glib}; // בשביל gio::Menu / glib::SpawnFlags
+
+use gtk::{gio, glib}; // add gdk here
 use gtk4 as gtk;
-use vte4::prelude::*; // <<< מביא TerminalExtManual (spawn_async)
-use vte4::{PtyFlags, Terminal};
+use vte4::prelude::*;
+use vte4::{PtyFlags, Terminal}; // keep this
 
 fn create_terminal_with_working_dir(working_dir: Option<&str>) -> Terminal {
     let terminal = Terminal::new();
@@ -18,13 +19,17 @@ fn create_terminal_with_working_dir(working_dir: Option<&str>) -> Terminal {
     terminal.spawn_async(
         PtyFlags::DEFAULT,
         workdir.as_deref(),
-        &["/bin/bash", "-i"],  // interactive: sources /etc/bashrc
-        &["VTE_VERSION=6003"], // enables OSC 7 updates (VTE current dir)
+        &["/bin/bash", "--rcfile", "/app/etc/spliterma-rc"], // <- here
+        &[],                                                 // inherit env
         glib::SpawnFlags::DEFAULT,
         || {},
         -1,
         None::<&gio::Cancellable>,
-        |_result| { /* ... */ },
+        |res| {
+            if let Err(e) = res {
+                eprintln!("spawn failed: {e}");
+            }
+        },
     );
 
     terminal
@@ -119,6 +124,9 @@ pub(crate) fn create_terminal_with_title(
 
     // Create terminal
     let terminal = create_terminal_with_working_dir(working_dir);
+
+    terminal.set_can_focus(true);
+    terminal.set_focusable(true);
 
     // Store working directory in terminal's data for later retrieval
     unsafe {
@@ -274,10 +282,12 @@ fn show_rename_dialog(title_label: &gtk::Label, title_bar: &gtk::Box) {
 fn setup_context_menu(terminal: &Terminal, container: &gtk::Box) {
     // Create the context menu
     let menu = gio::Menu::new();
+    menu.append(Some("Copy"), Some("terminal.copy")); // Add copy option
+    menu.append(Some("Paste"), Some("terminal.paste")); // Add paste option
     menu.append(Some("Split Horizontal"), Some("split.horizontal"));
     menu.append(Some("Split Vertical"), Some("split.vertical"));
     menu.append(Some("Save Layout"), Some("terminal.save-layout"));
-    menu.append(Some("Load Layout"), Some("terminal.load-layout")); // <<< NEW
+    menu.append(Some("Load Layout"), Some("terminal.load-layout"));
     menu.append(Some("Stop Terminal"), Some("terminal.stop"));
 
     let popover_menu = gtk::PopoverMenu::from_model(Some(&menu));
@@ -285,6 +295,28 @@ fn setup_context_menu(terminal: &Terminal, container: &gtk::Box) {
 
     // Create action group for split/terminal actions
     let action_group = gio::SimpleActionGroup::new();
+
+    // Add copy action
+    let terminal_for_copy = terminal.clone();
+    let copy_action = gio::SimpleAction::new("copy", None);
+    copy_action.connect_activate(move |_, _| {
+        println!("Context menu copy activated");
+        if terminal_for_copy.has_selection() {
+            terminal_for_copy.copy_clipboard_format(vte4::Format::Text);
+        } else {
+            println!("No selection to copy");
+        }
+    });
+    action_group.add_action(&copy_action);
+
+    // Add paste action
+    let terminal_for_paste = terminal.clone();
+    let paste_action = gio::SimpleAction::new("paste", None);
+    paste_action.connect_activate(move |_, _| {
+        println!("Context menu paste activated");
+        terminal_for_paste.paste_clipboard();
+    });
+    action_group.add_action(&paste_action);
 
     // --- Horizontal split
     let container_clone = container.clone();
@@ -306,7 +338,7 @@ fn setup_context_menu(terminal: &Terminal, container: &gtk::Box) {
     });
     action_group.add_action(&vertical_action);
 
-    // --- Save layout action (fix)
+    // --- Save layout action
     let container_for_save = container.clone();
     let popover_for_save = popover_menu.clone();
     let save_layout_action = gio::SimpleAction::new("save-layout", None);
@@ -316,7 +348,7 @@ fn setup_context_menu(terminal: &Terminal, container: &gtk::Box) {
             .and_then(|r| r.downcast::<gtk::ApplicationWindow>().ok())
         {
             if let Some(child) = win.child() {
-                save_layout(&child); // <-- save the real root widget
+                save_layout(&child);
             } else {
                 eprintln!("Window has no child to save");
             }
@@ -327,7 +359,7 @@ fn setup_context_menu(terminal: &Terminal, container: &gtk::Box) {
     });
     action_group.add_action(&save_layout_action);
 
-    // --- Load layout (NEW)
+    // --- Load layout
     let container_for_load = container.clone();
     let popover_for_load = popover_menu.clone();
     let load_layout_action = gio::SimpleAction::new("load-layout", None);

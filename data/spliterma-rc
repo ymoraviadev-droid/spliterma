@@ -1,0 +1,8 @@
+# Spliterma default prompt inside Flatpak.
+# First, reuse the user's own bashrc if present:
+[ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"
+
+# Fallback prompt: green user@host:cwd$ ; reset so input stays white
+if [ -z "${PS1-}" ]; then
+  PS1='\[\033[32m\]\u@\h\[\033[0m\]:\w\$ '
+fi

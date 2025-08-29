@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Spliterma
+Comment=Tiling terminal with save/load layouts
+Exec=spliterma
+Icon=com.spliterma.app
+Type=Application
+Terminal=false
+Categories=Utility;Development;
+StartupWMClass=com.spliterma.app

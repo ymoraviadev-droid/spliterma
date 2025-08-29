@@ -1,1 +1,36 @@
-/target
+# ---- Rust / Cargo ----------------------------------------------------------
+/target/
+**/*.rs.bk
+
+# Incremental build / profiling
+*.profraw
+*.profdata
+
+# ---- Flatpak local build artifacts ----------------------------------------
+/.flatpak-builder/
+build-dir/
+repo/
+files/
+*.flatpak
+*.flatpakref
+
+# ---- OS/editor noise -------------------------------------------------------
+# Vim
+*.swp
+*.swo
+*~
+# Emacs
+\#*\#
+.\#*
+# macOS / Windows
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+*.log
+*.tmp
+tmp/
+.cache/
+
+/data/screenshots-local/
