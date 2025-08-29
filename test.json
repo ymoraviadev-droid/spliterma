@@ -9,14 +9,14 @@
       {
         "name": "Bla",
         "color_index": 0,
-        "working_dir": "/home/ymoravia/Projects/rust-apps/spliterma",
+        "working_dir": "/home",
         "split_type": null,
         "children": []
       },
       {
         "name": "Cool",
         "color_index": 1,
-        "working_dir": "/home/ymoravia/Projects/rust-apps",
+        "working_dir": "/home",
         "split_type": null,
         "children": []
       }
