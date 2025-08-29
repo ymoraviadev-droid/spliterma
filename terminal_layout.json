@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "root": {
+    "name": "Split",
+    "color_index": 0,
+    "working_dir": "",
+    "split_type": "Vertical",
+    "children": [
+      {
+        "name": "eee",
+        "color_index": 0,
+        "working_dir": "/home/ymoravia/Projects/rust-apps/spliterma",
+        "split_type": null,
+        "children": []
+      },
+      {
+        "name": "werew",
+        "color_index": 0,
+        "working_dir": "/home/ymoravia/Projects/rust-apps/spliterma",
+        "split_type": null,
+        "children": []
+      }
+    ]
+  }
+}
