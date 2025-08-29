@@ -7,75 +7,80 @@ Split panes horizontally/vertically, color-code each pane, rename titles, and **
 
 ---
 
-## ✨ Features
+## Features
 
 - Split **Horizontal** / **Vertical**
 - Per-pane **title** (double-click to rename)
 - Per-pane **color** (picker)
 - **Save layout** to JSON
 - **Load layout** from JSON
-- Remembers **working directory** per terminal
-- Context menu on right-click
+- Remembers **working directory** per terminal (VTE OSC 7)
+- Context menu (right-click)
 - Menu shortcuts:
   - **Ctrl+S** – Save Layout
   - **Ctrl+O** – Load Layout
 
 ---
 
-## 🧰 Requirements
+## Requirements
 
 ### Rust
 ```bash
 # If you don't have Rust yet
 curl https://sh.rustup.rs -sSf | sh
 source "$HOME/.cargo/env"
-System packages
-Fedora:
+```
 
-bash
-Copy code
+### System packages
+
+**Fedora:**
+```bash
 sudo dnf install -y gtk4-devel vte291-devel glib2-devel pkgconf-pkg-config ImageMagick vte-profile
-Ubuntu/Debian:
+```
 
-bash
-Copy code
+**Ubuntu/Debian:**
+```bash
 sudo apt update
 sudo apt install -y libgtk-4-dev libvte-2.91-dev libglib2.0-dev pkg-config build-essential imagemagick
-vte-profile (Fedora) / your distro’s VTE bash integration helps persist the live working directory.
+```
 
-🚀 Build & Run
-bash
-Copy code
+> `vte-profile` (Fedora) or your distro’s VTE bash integration helps persist the **live working directory**.
+
+---
+
+## Build & Run
+
+```bash
 # Clone
 git clone https://github.com/yourname/spliterma.git
 cd spliterma
 
-# Run in debug
+# Debug
 cargo run
 
-# Or build optimized
+# Release
 cargo build --release
 ./target/release/spliterma
-🖱️ Usage
-Right-click a terminal for the context menu:
+```
 
-Split Horizontal / Vertical
+---
 
-Save Layout
+## Usage
 
-Load Layout
+- **Right-click** a terminal for:
+  - Split Horizontal / Vertical
+  - Save Layout
+  - Load Layout
+  - Stop Terminal
+- **Double-click** the title to rename.
+- **Click** the color dot to change pane color.
+- **Ctrl+S** / **Ctrl+O** via the app menu.
 
-Stop Terminal
+---
 
-Double-click a pane title to rename.
+## Layout JSON (example)
 
-Click the color dot to change pane color.
-
-Saving/Loading is also available via the app menu (Ctrl+S / Ctrl+O).
-
-🧩 Layout JSON (example)
-json
-Copy code
+```json
 {
   "version": "1.0",
   "root": {
@@ -101,19 +106,22 @@ Copy code
     ]
   }
 }
-🧿 App Icon (transparent PNG)
-Put a transparent PNG named spliterma.png in the project root.
+```
 
-Generate & install icon sizes for app ID com.spliterma.app:
+---
 
-bash
-Copy code
+## App Icon (transparent PNG)
+
+1) Put a **transparent** PNG named `spliterma.png` in the **project root**.  
+2) Generate & install icon sizes for app ID **`com.spliterma.app`**:
+
+```bash
 cat > make_app_icon.sh <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
 APP_ID="com.spliterma.app"
-SRC="./spliterma.png"            # source icon (transparent PNG)
+SRC="./spliterma.png"             # transparent PNG in project root
 OUT="/tmp/spliterma-icons"
 SIZES=(16 32 48 64 128 256)
 
@@ -124,13 +132,13 @@ rm -rf "$OUT"; mkdir -p "$OUT"
 for s in "${SIZES[@]}"; do
   magick "$SRC" -resize "${s}x${s}" -background none -gravity center -extent "${s}x${s}" "$OUT/${s}.png"
 done
+cp "$OUT/256.png" "$OUT/${APP_ID}.png"
 
 for s in "${SIZES[@]}"; do
   mkdir -p "$HOME/.local/share/icons/hicolor/${s}x${s}/apps"
   cp "$OUT/${s}.png" "$HOME/.local/share/icons/hicolor/${s}x${s}/apps/${APP_ID}.png"
 done
 
-# Rebuild caches (if available)
 gtk-update-icon-cache "$HOME/.local/share/icons/hicolor" -f || true
 gtk4-update-icon-cache "$HOME/.local/share/icons/hicolor" -f || true
 
@@ -140,12 +148,13 @@ EOF
 
 chmod +x make_app_icon.sh
 bash make_app_icon.sh
-(Optional) Desktop launcher:
+```
 
-Create ~/.local/share/applications/com.spliterma.app.desktop:
+3) (Optional) Desktop launcher:
 
-ini
-Copy code
+Create `~/.local/share/applications/com.spliterma.app.desktop`:
+
+```
 [Desktop Entry]
 Name=Spliterma
 Exec=/full/path/to/your/binary
@@ -154,21 +163,25 @@ Type=Application
 Terminal=false
 Categories=Utility;Development;
 StartupWMClass=com.spliterma.app
+```
+
 Update the desktop DB (optional):
-
-bash
-Copy code
+```bash
 update-desktop-database ~/.local/share/applications || true
-Ensure your code uses:
+```
 
-rust
-Copy code
-let app = gtk::Application::builder()
-    .application_id("com.spliterma.app")
-    .build();
-🗂️ Project layout (simplified)
-csharp
-Copy code
+> Ensure your code uses:
+> ```rust
+> let app = gtk::Application::builder()
+>     .application_id("com.spliterma.app")
+>     .build();
+> ```
+
+---
+
+## 🗂️ Project layout (simplified)
+
+```
 src/
   main.rs
   app.rs
@@ -186,21 +199,27 @@ src/
     mod.rs
     errors.rs        # error dialog helper
     ids.rs           # AtomicUsize terminal counter
-📝 Notes
-Working directory persistence uses VTE’s OSC 7. On Fedora install vte-profile. On other distros, ensure your shell sources the VTE integration that ships with VTE.
+```
 
-If the icon doesn’t show immediately in launchers, log out/in or restart the shell once.
+---
 
-🛡️ License
+## Notes
+
+- **Working directory** persistence uses VTE’s OSC 7. On Fedora install `vte-profile`. On other distros, ensure your shell sources the VTE integration that ships with VTE.
+- If the icon doesn’t show immediately in launchers, log out/in or restart the shell once.
+
+---
+
+## License
+
 MIT
 
-🤝 Contribute
+---
+
+## Contribute
+
 PRs welcome:
-
-Bug fixes (layout edge cases)
-
-Improved icon / theming
-
-Config & settings
-
-Packaging (Flatpak, RPM/DEB)
+- Bug fixes (layout edge cases)
+- Improved icon / theming
+- Config & settings
+- Packaging (Flatpak, RPM/DEB)
