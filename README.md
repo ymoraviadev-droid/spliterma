@@ -10,12 +10,12 @@ Split panes horizontally/vertically, color-code each pane, rename titles, and **
 ## Features
 
 - Split **Horizontal** / **Vertical**
-- Per-pane **title** (double-click to rename)
-- Per-pane **color** (picker) — remembered on save
+- **Rename a pane**: **double-click the title**
+- **Change pane color**: **click the colored dot** in the title bar
+- **Right-click** a terminal for the **context menu** (Split, Save, Load, Stop)
 - **Save layout** to JSON / **Load layout** from JSON
 - Remembers **working directory** per terminal (VTE OSC 7)
 - **Copy/Paste**: **Ctrl+Shift+C** / **Ctrl+Shift+V**
-- Context menu (right-click)
 - Menu shortcuts:
   - **Ctrl+S** – Save Layout
   - **Ctrl+O** – Load Layout
@@ -67,13 +67,12 @@ cargo build --release
 
 ## Usage
 
-- **Right-click** a terminal for:
+- **Double-click the title** to rename the terminal.
+- **Click the color dot** in the title bar to change the pane color.
+- **Right-click** inside a terminal for the context menu:
   - Split Horizontal / Vertical
-  - Save Layout
-  - Load Layout
+  - Save Layout / Load Layout
   - Stop Terminal
-- **Double-click** the title to rename.
-- **Click** the color dot to change pane color.
 - **Ctrl+Shift+C** to copy selection, **Ctrl+Shift+V** to paste.
 - **Ctrl+S** / **Ctrl+O** via the app menu.
 
