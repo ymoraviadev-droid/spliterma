@@ -1,8 +1,27 @@
 # Spliterma default prompt inside Flatpak.
-# First, reuse the user's own bashrc if present:
+# Reuse the user's own bashrc if present:
 [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"
 
 # Fallback prompt: green user@host:cwd$ ; reset so input stays white
 if [ -z "${PS1-}" ]; then
   PS1='\[\033[32m\]\u@\h\[\033[0m\]:\w\$ '
+fi
+
+# Run host tools from inside the sandbox
+if command -v flatpak-spawn >/dev/null 2>&1; then
+  hostrun() {
+    # Keep current directory on host if possible
+    flatpak-spawn --host --directory="$PWD" "$@"
+  }
+
+  # Wrap common Node.js toolchain commands to the host
+  for _cmd in node npm npx pnpm; do
+    if ! command -v "$_cmd" >/dev/null 2>&1; then
+      eval "
+        $_cmd() {
+          hostrun $_cmd \"\$@\"
+        }
+      "
+    fi
+  done
 fi

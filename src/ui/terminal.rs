@@ -55,10 +55,6 @@ pub(crate) fn create_terminal_with_title(
 
     // Create title bar
     let title_bar = gtk::Box::new(gtk::Orientation::Horizontal, 8);
-    title_bar.set_margin_start(8);
-    title_bar.set_margin_end(8);
-    title_bar.set_margin_top(4);
-    title_bar.set_margin_bottom(4);
 
     // Set title bar background color
     let color = TERMINAL_COLORS[color_index % TERMINAL_COLORS.len()];
@@ -288,7 +284,7 @@ fn setup_context_menu(terminal: &Terminal, container: &gtk::Box) {
     menu.append(Some("Split Vertical"), Some("split.vertical"));
     menu.append(Some("Save Layout"), Some("terminal.save-layout"));
     menu.append(Some("Load Layout"), Some("terminal.load-layout"));
-    menu.append(Some("Stop Terminal"), Some("terminal.stop"));
+    menu.append(Some("Close Terminal"), Some("terminal.stop"));
 
     let popover_menu = gtk::PopoverMenu::from_model(Some(&menu));
     popover_menu.set_parent(terminal);

@@ -12,6 +12,7 @@
     "--filesystem=home",
     "--talk-name=org.freedesktop.portal.Desktop",
     "--talk-name=org.freedesktop.portal.Clipboard",
+    "--talk-name=org.freedesktop.Flatpak",
     "--own-name=com.spliterma.app",
     "--env=TERM=xterm-256color",
     "--env=COLORTERM=truecolor",
